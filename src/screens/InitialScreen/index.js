@@ -1,20 +1,22 @@
 import React, {useState} from 'react';
-import {View, Text} from 'react-native';
-import {Button, TextInput, TouchableRipple} from 'react-native-paper';
-import {COLORS, FONTS} from '../../constants';
+import {View, Text, ScrollView} from 'react-native';
+import {TextInput, TouchableRipple} from 'react-native-paper';
+import {COLORS} from '../../constants';
 import styles from './styles';
 
 const LoadWalletScreen = ({navigation}) => {
   const [secretkey, setSecretkey] = useState('');
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      {/* title text container */}
       <View style={styles.textwrapper}>
         <Text style={styles.titleText}>
           Crypto
-          <Text style={{color: COLORS.black}}>Xpress</Text>
+          <Text style={{color: COLORS.gray}}>Xpress</Text>
         </Text>
       </View>
+      {/* secretkey input */}
       <TextInput
         label="Enter Your Secret Key"
         value={secretkey}
@@ -27,6 +29,7 @@ const LoadWalletScreen = ({navigation}) => {
           colors: {text: COLORS.black, placeholder: COLORS.gray},
         }}
       />
+      {/* load wallet button */}
       <View style={styles.buttonWrapper}>
         <TouchableRipple
           onPress={() => navigation.replace('HomeScreen')}
@@ -35,7 +38,7 @@ const LoadWalletScreen = ({navigation}) => {
           <Text style={styles.buttonText}>Load Wallet</Text>
         </TouchableRipple>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
