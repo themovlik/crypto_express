@@ -11,7 +11,6 @@ const Stack = createNativeStackNavigator();
 const Router = () => {
   return (
     <Stack.Navigator
-      initialRouteName="LoadWalletScreen"
       screenOptions={{headerShown: false, animation: 'slide_from_right'}}>
       <Stack.Screen name="LoadWalletScreen" component={LoadWalletScreen} />
       <Stack.Screen name="HomeScreen" component={HomeScreen} />

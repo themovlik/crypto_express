@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {COLORS, FONTS} from '../../constants';
+import {COLORS, FONTS, SIZES} from '../../constants';
 
 export default StyleSheet.create({
   container: {
@@ -11,6 +11,11 @@ export default StyleSheet.create({
     color: COLORS.secondary,
     textTransform: 'capitalize',
   },
+  mediumTitle: {
+    ...FONTS.title,
+    marginLeft: SIZES.margin * 2,
+    color: COLORS.gray,
+  },
   textwrapper: {
     alignItems: 'center',
     paddingVertical: 150,
@@ -21,14 +26,25 @@ export default StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   buttonWrapper: {
-    marginTop: 50,
-    marginHorizontal: 20,
+    marginTop: SIZES.margin * 5,
+    marginHorizontal: SIZES.margin * 2,
   },
   button: {
     height: 50,
     justifyContent: 'center',
     backgroundColor: COLORS.secondary,
     borderRadius: 5,
+  },
+  smallButton: {
+    height: 20,
+    width: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.red,
+    borderRadius: 5,
+    position: 'absolute',
+    top: 20,
+    right: 20,
   },
   buttonText: {
     ...FONTS.buttonText,
@@ -43,5 +59,18 @@ export default StyleSheet.create({
   transationText: {
     ...FONTS.smallTitle,
     color: COLORS.gray,
+  },
+  transactionWrapper: {
+    backgroundColor: 'orange',
+    padding: SIZES.padding,
+    borderRadius: SIZES.radius,
+    marginHorizontal: SIZES.margin * 2,
+    marginTop: SIZES.margin,
+    backgroundColor: COLORS.lightGray3,
+  },
+  transactionText: {
+    ...FONTS.caption,
+    color: COLORS.gray,
+    width: '95%',
   },
 });
