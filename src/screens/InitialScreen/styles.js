@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {COLORS, FONTS} from '../../constants';
+import {COLORS, FONTS, SIZES} from '../../constants';
 
 export default StyleSheet.create({
   container: {
@@ -17,12 +17,12 @@ export default StyleSheet.create({
   },
   textInput: {
     ...FONTS.placeHolder,
-    marginHorizontal: 20,
+    marginHorizontal: SIZES.margin * 2,
     backgroundColor: COLORS.white,
   },
   buttonWrapper: {
-    marginTop: 50,
-    marginHorizontal: 20,
+    marginTop: SIZES.margin * 5,
+    marginHorizontal: SIZES.margin * 2,
   },
   button: {
     height: 50,

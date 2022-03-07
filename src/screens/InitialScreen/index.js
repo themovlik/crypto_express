@@ -23,7 +23,7 @@ const LoadWalletScreen = ({navigation}) => {
   const isKeyAvailable = async () => {
     const key = await AsyncStorage.getItem('privateKey');
     if (key && key.length > 0) {
-      navigation.navigate('HomeScreen', {privateKey: key});
+      navigation.navigate('HomeScreen');
     } else {
       navigation.navigate('LoadWalletScreen');
     }
@@ -38,7 +38,11 @@ const LoadWalletScreen = ({navigation}) => {
         ),
       );
       const account = await web3.eth.accounts.privateKeyToAccount(secretkey);
-      account && (await AsyncStorage.setItem('privateKey', account.privateKey));
+      if (account) {
+        await AsyncStorage.setItem('privateKey', account.privateKey);
+        Toast.show('Wallet Loaded Successfully');
+        navigation.navigate('HomeScreen');
+      }
     } catch (error) {
       Toast.show(error.message);
     }
