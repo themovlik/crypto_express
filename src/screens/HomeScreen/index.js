@@ -193,7 +193,6 @@ const HomeScreen = ({navigation}) => {
                   <Text
                     style={{
                       ...styles.transactionText,
-                      width: '80%',
                       textTransform: 'lowercase',
                     }}>
                     {item.to}
@@ -204,7 +203,6 @@ const HomeScreen = ({navigation}) => {
                   <Text
                     style={{
                       ...styles.transactionText,
-                      width: '80%',
                       textTransform: 'lowercase',
                     }}>
                     {item.value}
