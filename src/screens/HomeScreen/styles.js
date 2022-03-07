@@ -11,6 +11,11 @@ export default StyleSheet.create({
     color: COLORS.secondary,
     textTransform: 'capitalize',
   },
+  mediumTitle: {
+    ...FONTS.title,
+    marginLeft: 20,
+    color: COLORS.gray,
+  },
   textwrapper: {
     alignItems: 'center',
     paddingVertical: 150,

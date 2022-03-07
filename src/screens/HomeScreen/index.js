@@ -21,6 +21,7 @@ const HomeScreen = () => {
           <Text style={{color: COLORS.gray}}>Xpress</Text>
         </Text>
       </View>
+      <Text style={styles.mediumTitle}>Transfer Amount</Text>
       {/* wallet address input */}
       <TextInput
         label="Wallet Address"
