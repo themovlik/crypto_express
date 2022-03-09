@@ -22,7 +22,7 @@ export default StyleSheet.create({
   },
   textInput: {
     ...FONTS.placeHolder,
-    marginHorizontal: 20,
+    marginHorizontal: SIZES.margin * 2,
     backgroundColor: COLORS.white,
   },
   buttonWrapper: {
@@ -30,17 +30,23 @@ export default StyleSheet.create({
     marginHorizontal: SIZES.margin * 2,
   },
   button: {
+    backgroundColor: COLORS.secondary,
     height: 50,
     justifyContent: 'center',
-    backgroundColor: COLORS.secondary,
     borderRadius: 5,
   },
+  transactionButton: {
+    backgroundColor: COLORS.gray,
+    height: 50,
+    justifyContent: 'center',
+    borderRadius: 5,
+    marginTop: 10,
+  },
   smallButton: {
-    height: 20,
-    width: 80,
+    padding: SIZES.base,
+    backgroundColor: COLORS.red,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.red,
     borderRadius: 5,
     position: 'absolute',
     top: 20,

@@ -6,7 +6,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {COLORS} from '../../constants';
 import styles from './styles';
 import '../../../global';
+
 const Web3 = require('web3');
+const provider = new Web3.providers.HttpProvider(
+  `https://ropsten.infura.io/v3/bee5b8012e4b442ab57ab39c482ec059`,
+);
+const web3 = new Web3(provider);
 
 const LoadWalletScreen = ({navigation}) => {
   //all the states
@@ -32,11 +37,6 @@ const LoadWalletScreen = ({navigation}) => {
   //load the wallet
   const handleLoadWallet = async () => {
     try {
-      const web3 = new Web3(
-        new Web3.providers.HttpProvider(
-          `https://ropsten.infura.io/v3/bee5b8012e4b442ab57ab39c482ec059`,
-        ),
-      );
       const account = await web3.eth.accounts.privateKeyToAccount(secretkey);
       if (account) {
         await AsyncStorage.setItem('privateKey', account.privateKey);

@@ -1,5 +1,11 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {View, Text, ScrollView, FlatList} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import {TextInput, TouchableRipple} from 'react-native-paper';
 import BottomSheet from 'react-native-raw-bottom-sheet';
 import Toast from 'react-native-simple-toast';
@@ -7,13 +13,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {COLORS, SIZES} from '../../constants';
 import styles from './styles';
 import '../../../global';
+
 const Web3 = require('web3');
+const provider = new Web3(
+  new Web3.providers.HttpProvider(
+    `https://ropsten.infura.io/v3/bee5b8012e4b442ab57ab39c482ec059`,
+  ),
+);
+const web3 = new Web3(provider);
+
 const HomeScreen = ({navigation}) => {
   // all the states
   const [walletAddress, setWalletAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [secretkey, setSecretkey] = useState('');
   const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // refs
   const refBottomSheet = useRef();
@@ -46,39 +61,51 @@ const HomeScreen = ({navigation}) => {
   // transfer the amount from one account to another
   const transferAmount = async () => {
     try {
-      const provider = new Web3(
-        new Web3.providers.HttpProvider(
-          `https://ropsten.infura.io/v3/bee5b8012e4b442ab57ab39c482ec059`,
-        ),
-      );
-      const web3 = new Web3(provider);
+      setIsLoading(true);
+      // get the amount
       const account = await web3.eth.accounts.privateKeyToAccount(secretkey);
-      web3.eth
-        .sendTransaction({
-          to: walletAddress,
-          from: account.address,
-          value: web3.utils.toHex(amount.toString()),
-          nonce: '0x00',
-          gasPrice: '0x09184e72a000',
-          gasLimit: '0x2710',
-        })
-        .then(receipt => {
-          console.log(receipt);
-        });
+      const nonce = await web3.eth.getTransactionCount(
+        account.address,
+        'latest',
+      );
+
+      // create the transaction
+      const transaction = {
+        from: account.address,
+        to: walletAddress,
+        value: web3.utils.toHex(amount.toString()),
+        nonce: nonce,
+        gas: '0x0',
+        gasPrice: '0x0',
+        gasLimit: 53000,
+      };
+
+      // sign the transaction
+      const signedTransaction = await account.signTransaction(transaction);
+
+      // send the transaction
+      web3.eth.sendSignedTransaction(
+        signedTransaction.rawTransaction,
+        (error, hash) => {
+          if (error) {
+            Toast.show(error.message);
+            setIsLoading(false);
+          } else {
+            Toast.show('Transaction Successful');
+            setIsLoading(false);
+            transactionChecker();
+          }
+        },
+      );
     } catch (error) {
       Toast.show(error.message);
+      setIsLoading(false);
     }
   };
 
+  // transaction list
   const transactionChecker = async () => {
-    const provider = new Web3(
-      new Web3.providers.HttpProvider(
-        `https://ropsten.infura.io/v3/bee5b8012e4b442ab57ab39c482ec059`,
-      ),
-    );
-    const web3 = new Web3(provider);
     let tempTransaction = [];
-
     let block = await web3.eth.getBlock('latest');
     if (block !== null && block.transactions !== null) {
       for (let txHash of block.transactions) {
@@ -89,23 +116,62 @@ const HomeScreen = ({navigation}) => {
             'from: ' +
               tx.from.toLowerCase() +
               ' to: ' +
-              tx.to.toLowerCase() +
+              tx.hash.toLowerCase() +
               ' value: ' +
-              tx.value,
+              web3.utils.fromWei(tx.value, 'ether'),
           );
           setTransactions(tempTransaction);
         }
       }
     }
   };
+
+  // render the transactio list item
+  const renderTransaction = item => {
+    <View style={styles.transactionWrapper}>
+      <Text numberOfLines={1} style={styles.transactionText}>
+        From:{' '}
+        <Text
+          style={{
+            ...styles.transactionText,
+            textTransform: 'lowercase',
+          }}>
+          {item.from}
+        </Text>
+      </Text>
+      <Text numberOfLines={1} style={styles.transactionText}>
+        To:{' '}
+        <Text
+          style={{
+            ...styles.transactionText,
+            textTransform: 'lowercase',
+          }}>
+          {item.to}
+        </Text>
+      </Text>
+      <Text numberOfLines={1} style={styles.transactionText}>
+        Value:{' '}
+        <Text
+          style={{
+            ...styles.transactionText,
+            textTransform: 'lowercase',
+          }}>
+          {item.value}
+        </Text>
+      </Text>
+    </View>;
+  };
+
   return (
     <ScrollView style={styles.container}>
+      {/* logo */}
       <View style={styles.textwrapper}>
         <Text style={styles.titleText}>
           Crypto
           <Text style={{color: COLORS.gray}}>Xpress</Text>
         </Text>
       </View>
+      {/* reset wallet button */}
       <TouchableRipple style={styles.smallButton} onPress={resetPrivateKey}>
         <Text style={styles.buttonText}>Reset Wallet</Text>
       </TouchableRipple>
@@ -139,20 +205,21 @@ const HomeScreen = ({navigation}) => {
       {/* transfer button */}
       <View style={styles.buttonWrapper}>
         <TouchableRipple
+          disabled={isLoading}
           onPress={transferAmount}
           rippleColor={COLORS.gray}
           style={styles.button}>
-          <Text style={styles.buttonText}>Transfer</Text>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={COLORS.white} />
+          ) : (
+            <Text style={styles.buttonText}>Transfer</Text>
+          )}
         </TouchableRipple>
         {/* transfer history button */}
         <TouchableRipple
           onPress={() => refBottomSheet.current.open()}
           rippleColor={COLORS.gray}
-          style={{
-            ...styles.button,
-            marginTop: 10,
-            backgroundColor: COLORS.gray,
-          }}>
+          style={styles.transactionButton}>
           <Text style={styles.buttonText}>Transaction History</Text>
         </TouchableRipple>
       </View>
@@ -176,41 +243,8 @@ const HomeScreen = ({navigation}) => {
           <FlatList
             data={transactions}
             nestedScrollEnabled={true}
-            renderItem={({item}) => (
-              <View style={styles.transactionWrapper}>
-                <Text numberOfLines={1} style={styles.transactionText}>
-                  From:{' '}
-                  <Text
-                    style={{
-                      ...styles.transactionText,
-                      textTransform: 'lowercase',
-                    }}>
-                    {item.from}
-                  </Text>
-                </Text>
-                <Text numberOfLines={1} style={styles.transactionText}>
-                  To:{' '}
-                  <Text
-                    style={{
-                      ...styles.transactionText,
-                      textTransform: 'lowercase',
-                    }}>
-                    {item.to}
-                  </Text>
-                </Text>
-                <Text numberOfLines={1} style={styles.transactionText}>
-                  Value:{' '}
-                  <Text
-                    style={{
-                      ...styles.transactionText,
-                      textTransform: 'lowercase',
-                    }}>
-                    {item.value}
-                  </Text>
-                </Text>
-              </View>
-            )}
             keyExtractor={item => item.hash}
+            renderItem={({item}) => renderTransaction(item)}
           />
         ) : (
           <View style={styles.notransationWrapper}>
