@@ -112,14 +112,6 @@ const HomeScreen = ({navigation}) => {
         let tx = await web3.eth.getTransaction(txHash);
         if (tx.from === provider.address) {
           tempTransaction.push(tx);
-          console.log(
-            'from: ' +
-              tx.from.toLowerCase() +
-              ' to: ' +
-              tx.hash.toLowerCase() +
-              ' value: ' +
-              web3.utils.fromWei(tx.value, 'ether'),
-          );
           setTransactions(tempTransaction);
         }
       }
