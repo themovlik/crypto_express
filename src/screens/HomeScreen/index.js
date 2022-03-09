@@ -17,7 +17,7 @@ import '../../../global';
 const Web3 = require('web3');
 const provider = new Web3(
   new Web3.providers.HttpProvider(
-    `https://ropsten.infura.io/v3/bee5b8012e4b442ab57ab39c482ec059`,
+    `https://speedy-nodes-nyc.moralis.io/d26aff17bbec4491e9ed8cdf/eth/ropsten`,
   ),
 );
 const web3 = new Web3(provider);
@@ -68,16 +68,22 @@ const HomeScreen = ({navigation}) => {
         account.address,
         'latest',
       );
+      const gasPrice = await web3.eth.getGasPrice();
+      const gas = await web3.eth.estimateGas({
+        from: account.address,
+        to: walletAddress,
+        value: web3.utils.toWei(amount, 'ether'),
+      });
 
       // create the transaction
       const transaction = {
         from: account.address,
         to: walletAddress,
-        value: web3.utils.toHex(amount.toString()),
+        value: web3.utils.toWei(amount, 'ether'),
         nonce: nonce,
-        gas: '0x0',
-        gasPrice: '0x0',
-        gasLimit: 53000,
+        gas: gas,
+        gasPrice: gasPrice,
+        gasLimit: 21000,
       };
 
       // sign the transaction
@@ -91,7 +97,7 @@ const HomeScreen = ({navigation}) => {
             Toast.show(error.message);
             setIsLoading(false);
           } else {
-            Toast.show('Transaction Successful');
+            Toast.show('Transaction Successful with hash: ' + hash);
             setIsLoading(false);
             transactionChecker();
           }
