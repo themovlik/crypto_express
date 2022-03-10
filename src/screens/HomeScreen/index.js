@@ -10,6 +10,7 @@ import {TextInput, TouchableRipple} from 'react-native-paper';
 import BottomSheet from 'react-native-raw-bottom-sheet';
 import Toast from 'react-native-simple-toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import {COLORS, SIZES} from '../../constants';
 import styles from './styles';
 import '../../../global';
@@ -36,7 +37,7 @@ const HomeScreen = ({navigation}) => {
   // all the useEffect
   useEffect(() => {
     getSecretKey();
-    transactionChecker();
+    getTransactions();
   }, []);
 
   // all the functions
@@ -99,7 +100,7 @@ const HomeScreen = ({navigation}) => {
           } else {
             Toast.show('Transaction Successful with hash: ' + hash);
             setIsLoading(false);
-            transactionChecker();
+            getTransactions();
           }
         },
       );
@@ -121,6 +122,19 @@ const HomeScreen = ({navigation}) => {
           setTransactions(tempTransaction);
         }
       }
+    }
+  };
+
+  // get transactions from the etherscan
+  const getTransactions = async () => {
+    try {
+      const account = await web3.eth.accounts.privateKeyToAccount(secretkey);
+      const response = await axios.get(
+        `https://api.etherscan.io/api?module=account&action=txlistinternal&address=${account.address}&startblock=0&endblock=99999999&sort=asc&apikey=Q6M7G9ZY58UCQEWWNW5YUWBXF82TX358CF`,
+      );
+      setTransactions(response.data.result);
+    } catch (error) {
+      Toast.show('Error in fetching transactions: ' + error.message);
     }
   };
 
