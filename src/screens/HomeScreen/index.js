@@ -10,6 +10,7 @@ import {TextInput, TouchableRipple} from 'react-native-paper';
 import BottomSheet from 'react-native-raw-bottom-sheet';
 import Toast from 'react-native-simple-toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import {COLORS, SIZES} from '../../constants';
 import styles from './styles';
 import '../../../global';
@@ -17,7 +18,7 @@ import '../../../global';
 const Web3 = require('web3');
 const provider = new Web3(
   new Web3.providers.HttpProvider(
-    `https://ropsten.infura.io/v3/bee5b8012e4b442ab57ab39c482ec059`,
+    `https://speedy-nodes-nyc.moralis.io/d26aff17bbec4491e9ed8cdf/eth/ropsten`,
   ),
 );
 const web3 = new Web3(provider);
@@ -36,7 +37,7 @@ const HomeScreen = ({navigation}) => {
   // all the useEffect
   useEffect(() => {
     getSecretKey();
-    transactionChecker();
+    getTransactions();
   }, []);
 
   // all the functions
@@ -68,16 +69,22 @@ const HomeScreen = ({navigation}) => {
         account.address,
         'latest',
       );
+      const gasPrice = await web3.eth.getGasPrice();
+      const gas = await web3.eth.estimateGas({
+        from: account.address,
+        to: walletAddress,
+        value: web3.utils.toWei(amount, 'ether'),
+      });
 
       // create the transaction
       const transaction = {
         from: account.address,
         to: walletAddress,
-        value: web3.utils.toHex(amount.toString()),
+        value: web3.utils.toWei(amount, 'ether'),
         nonce: nonce,
-        gas: '0x0',
-        gasPrice: '0x0',
-        gasLimit: 53000,
+        gas: gas,
+        gasPrice: gasPrice,
+        gasLimit: 21000,
       };
 
       // sign the transaction
@@ -91,9 +98,9 @@ const HomeScreen = ({navigation}) => {
             Toast.show(error.message);
             setIsLoading(false);
           } else {
-            Toast.show('Transaction Successful');
+            Toast.show('Transaction Successful with hash: ' + hash);
             setIsLoading(false);
-            transactionChecker();
+            getTransactions();
           }
         },
       );
@@ -115,6 +122,19 @@ const HomeScreen = ({navigation}) => {
           setTransactions(tempTransaction);
         }
       }
+    }
+  };
+
+  // get transactions from the etherscan
+  const getTransactions = async () => {
+    try {
+      const account = await web3.eth.accounts.privateKeyToAccount(secretkey);
+      const response = await axios.get(
+        `https://api.etherscan.io/api?module=account&action=txlistinternal&address=${account.address}&startblock=0&endblock=99999999&sort=asc&apikey=Q6M7G9ZY58UCQEWWNW5YUWBXF82TX358CF`,
+      );
+      setTransactions(response.data.result);
+    } catch (error) {
+      Toast.show('Error in fetching transactions: ' + error.message);
     }
   };
 

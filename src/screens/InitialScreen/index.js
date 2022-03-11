@@ -9,7 +9,7 @@ import '../../../global';
 
 const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(
-  `https://ropsten.infura.io/v3/bee5b8012e4b442ab57ab39c482ec059`,
+  `https://speedy-nodes-nyc.moralis.io/d26aff17bbec4491e9ed8cdf/eth/ropsten`,
 );
 const web3 = new Web3(provider);
 
